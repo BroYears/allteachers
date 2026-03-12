@@ -45,6 +45,7 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 - **AWS S3** (via Spring Cloud AWS 4.0) for VOD storage
 - **Lombok** for boilerplate reduction
 - **Spring Actuator** for monitoring
+- **Gradle 9.0.0** for build automation
 
 ## 🗄 Database Schema
 
