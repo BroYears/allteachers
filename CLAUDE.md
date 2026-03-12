@@ -19,10 +19,13 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 ## 🚀 Build & Run Commands
 
 ```bash
-# Build the project
+# ── Backend (backend/) ─────────────────────────────────────────────────────
+cd backend
+
+# Build
 ./gradlew build
 
-# Run the application
+# Run (개발 서버, port 8080)
 ./gradlew bootRun
 
 # Run all tests
@@ -31,8 +34,24 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 # Run a single test class
 ./gradlew test --tests "kr.co.allteachers.SomeTest"
 
-# Generate QueryDSL Q-classes (run after entity changes)
+# Generate QueryDSL Q-classes (엔티티 변경 후 실행)
 ./gradlew compileJava
+
+# ── Frontend (frontend/) ───────────────────────────────────────────────────
+cd frontend
+
+# 의존성 설치
+npm install
+
+# 개발 서버 (port 5173, Vite proxy → localhost:8080)
+npm run dev
+
+# 프로덕션 빌드
+npm run build
+
+# ── 로컬 전체 실행 (docker-compose) ───────────────────────────────────────
+# 루트에서 실행: DB + Valkey + Backend + Frontend 한번에
+docker-compose up --build
 ```
 
 ## 🛠 Tech Stack
@@ -76,6 +95,6 @@ Package structure under `kr.co.allteachers`:
 Key design points:
 - **Soft delete** on `users` — always filter `is_deleted = false` in queries. (DB 설계 및 최적화 관점에서 이 조건을 잊지 말 것)
 - **QueryDSL** is configured for complex queries (use Q-classes generated under `build/generated`).
-- **Valkey (Redis-compatible)** is used for refresh tokens (stored in `users.refresh_token` column as fallback) and progress heartbeat.
+- **Valkey (Redis-compatible)** is used for refresh tokens (AOF+Snapshot 영속성, RDB 컬럼 없음) and progress heartbeat.
 - **Spring Batch** handles the 30-day deletion job — configure `JobLauncher` + `Step` beans accordingly.
 - `categories` supports 4 depth levels; access control is extended via `categories_enrollments` for category-level subscriptions alongside course-level `enrollments`.

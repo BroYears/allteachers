@@ -49,7 +49,7 @@ dependencies {
     // Spring Cloud AWS
     implementation 'io.awspring.cloud:spring-cloud-aws-starter-s3:4.0.0'
 
-    // 5. Utils & Monitoring (1인 개발 필수품)
+    // 5. Utils & Monitoring (1인 개발 나의.. 필수품..)
     compileOnly 'org.projectlombok:lombok'
     annotationProcessor 'org.projectlombok:lombok'
     // 에러 트래킹 및 API 버저닝 디버깅용

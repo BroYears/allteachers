@@ -1,7 +1,16 @@
 import React from 'react';
-import { Link } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
+import { useAuth } from '../../contexts/AuthContext';
 
 const MyPage: React.FC = () => {
+    const { user, logout } = useAuth();
+    const navigate = useNavigate();
+
+    const handleLogout = () => {
+        logout();
+        navigate('/');
+    };
+
     return (
         <div className="contents mypage">
             {/* Top Banner */}
@@ -11,7 +20,7 @@ const MyPage: React.FC = () => {
                     <h2 className="title">내정보</h2>
                 </div>
             </div>
-            
+
             {/* Content */}
             <div className="container">
                 <div className="mypage-wrap">
@@ -19,16 +28,15 @@ const MyPage: React.FC = () => {
                         <div className="company-info">
                             <div className="info-wrap">
                                 <div className="img-box"></div>
-                                {/* TODO: Replace with actual user info from auth state */}
-                                <h3 className="user">홍길동님 반갑습니다</h3>
+                                <h3 className="user">{user?.nickname}님 반갑습니다</h3>
                             </div>
                         </div>
-                        
+
                         <nav className="sidebar-menu">
                             <ul>
                                 <li className="active"><Link to="/info/mypage">나의 수업 점검</Link></li>
                                 <li><a href="#!" onClick={(e) => { e.preventDefault(); alert('준비중입니다.'); }}>회원정보 수정</a></li>
-                                <li><a href="#!" onClick={(e) => { e.preventDefault(); alert('로그아웃 되었습니다.'); }}>로그아웃</a></li>
+                                <li><a href="#!" onClick={(e) => { e.preventDefault(); handleLogout(); }}>로그아웃</a></li>
                             </ul>
                         </nav>
                     </aside>

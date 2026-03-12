@@ -1,13 +1,12 @@
-### ☕ Java & Spring Boot (Gradle) ###
-HELP.md
+### ☕ Java & Spring Boot (Gradle) — backend/ ###
 .gradle
 build/
 out/
 bin/
-!gradle/wrapper/gradle-wrapper.jar
+!backend/gradle/wrapper/gradle-wrapper.jar
 
 # QueryDSL generated classes (빌드 시 자동 생성되므로 제외)
-/src/main/generated
+/backend/src/main/generated
 
 # 제외 대상의 하위 경로 예외 처리
 !**/src/main/**/build/

@@ -1,15 +1,28 @@
-import React, { useState } from 'react';
-import { Link } from 'react-router-dom';
+import React, { useState, useEffect } from 'react';
+import { Link, useNavigate, useLocation } from 'react-router-dom';
+import { useAuth } from '../../contexts/AuthContext';
 
 const Header: React.FC = () => {
     const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
     const [hoveredMenu, setHoveredMenu] = useState<number | null>(null);
+    const { isLoggedIn, user, logout } = useAuth();
+    const navigate = useNavigate();
+    const location = useLocation();
+
+    // 라우트 변경 시 모바일 메뉴 자동 닫기
+    useEffect(() => {
+        setIsMobileMenuOpen(false);
+    }, [location.pathname]);
 
     const toggleMobileMenu = () => {
         setIsMobileMenuOpen(!isMobileMenuOpen);
     };
 
-    // Calculate if any menu item is hovered to toggle global active states
+    const handleLogout = () => {
+        logout();
+        navigate('/');
+    };
+
     const isHeaderActive = hoveredMenu !== null;
 
     return (
@@ -33,13 +46,24 @@ const Header: React.FC = () => {
                             </a>
                         </div>
                         <div className="util">
-                            <div className="login_btn"><Link to="/login">로그인</Link></div>
+                            {isLoggedIn ? (
+                                <>
+                                    <div className="login_btn">
+                                        <Link to="/info/mypage">{user?.nickname}님</Link>
+                                    </div>
+                                    <div className="login_btn">
+                                        <a href="#!" onClick={(e) => { e.preventDefault(); handleLogout(); }}>로그아웃</a>
+                                    </div>
+                                </>
+                            ) : (
+                                <div className="login_btn"><Link to="/login">로그인</Link></div>
+                            )}
                             <div className="customer_btn"><Link to="/notice/partnership">고객문의</Link></div>
                             <div className="educompany_btn"><a href="http://www.educompany.co.kr/" target="_blank" rel="noreferrer">에듀컴퍼니</a></div>
                         </div>
                     </div>
                 </div>
-                
+
                 {/* Desktop Navigation */}
                 <div className={`header_con_bottom ${isHeaderActive ? 'active' : ''}`}>
                     <div className="header_con">
@@ -80,7 +104,7 @@ const Header: React.FC = () => {
                                             </div>
                                         </div>
                                     </li>
-                                    
+
                                     {/* 대학/대학원교육 */}
                                     <li onMouseEnter={() => setHoveredMenu(1)} onMouseLeave={() => setHoveredMenu(null)}>
                                         <Link to="/education/course-list/job/career"><span>대학/대학원교육</span></Link>
@@ -128,7 +152,7 @@ const Header: React.FC = () => {
                                     </li>
                                 </ul>
                             </div>
-                            
+
                             <div className="gnb-right">
                                 <ul className="depth_1">
                                     <li onMouseEnter={() => setHoveredMenu(7)} onMouseLeave={() => setHoveredMenu(null)}>
@@ -164,8 +188,21 @@ const Header: React.FC = () => {
                                     </div>
                                 </div>
                                 <div className="util-bottom">
-                                    <div className="login_btn"><Link to="/login">로그인</Link></div> 
-                                    <div className="join_btn"><Link to="/join">회원가입</Link></div>   
+                                    {isLoggedIn ? (
+                                        <>
+                                            <div className="login_btn">
+                                                <Link to="/info/mypage">{user?.nickname}님</Link>
+                                            </div>
+                                            <div className="join_btn">
+                                                <a href="#!" onClick={(e) => { e.preventDefault(); handleLogout(); }}>로그아웃</a>
+                                            </div>
+                                        </>
+                                    ) : (
+                                        <>
+                                            <div className="login_btn"><Link to="/login">로그인</Link></div>
+                                            <div className="join_btn"><Link to="/join">회원가입</Link></div>
+                                        </>
+                                    )}
                                 </div>
                             </div>
                         </div>

@@ -1,23 +1,61 @@
+-- ────────────────────────────────────────────────────────────────────────────
+-- 초기화 (개발 환경 전체 재생성용)
+-- CASCADE: FK 의존 순서를 신경 쓰지 않고 한 번에 삭제
+-- ────────────────────────────────────────────────────────────────────────────
+DROP TABLE IF EXISTS reviews             CASCADE;
+DROP TABLE IF EXISTS categories_enrollments CASCADE;
+DROP TABLE IF EXISTS progresses          CASCADE;
+DROP TABLE IF EXISTS zoom_classes        CASCADE;
+DROP TABLE IF EXISTS boards              CASCADE;
+DROP TABLE IF EXISTS enrollments         CASCADE;
+DROP TABLE IF EXISTS episodes            CASCADE;
+DROP TABLE IF EXISTS courses             CASCADE;
+DROP TABLE IF EXISTS banners             CASCADE;
+DROP TABLE IF EXISTS partners            CASCADE;
+DROP TABLE IF EXISTS site_configs        CASCADE;
+DROP TABLE IF EXISTS users_profiles      CASCADE;
+DROP TABLE IF EXISTS users               CASCADE;
+DROP TABLE IF EXISTS categories          CASCADE;
+
+-- ────────────────────────────────────────────────────────────────────────────
+-- 테이블 생성
+-- ────────────────────────────────────────────────────────────────────────────
+
 -- 유저 테이블
-CREATE TABLE IF NOT EXISTS users (
-    users_id bigserial PRIMARY KEY,
-    email varchar(255) UNIQUE NOT NULL,
-    password varchar(255) NOT NULL,
-    nickname varchar(30) UNIQUE NOT NULL,
-    name varchar(150) NOT NULL,
-    organization varchar(100) NOT NULL,
-    role varchar(20) NOT NULL DEFAULT 'USER',
-    phone varchar(20) UNIQUE NOT NULL,
-    address varchar(255) NOT NULL,
-    provider varchar(20) NOT NULL DEFAULT 'LOCAL',
-    has_all_access boolean NOT NULL DEFAULT FALSE, -- 프리패스 권한 추가
-    is_deleted boolean NOT NULL DEFAULT FALSE,
-    deleted_at timestamptz NULL,
-    created_at timestamptz NOT NULL DEFAULT CURRENT_TIMESTAMP,
-    logo_url text NULL,
-    refresh_token text NULL, -- 로그인 전에는 NULL일 수 있음
-    birth_date date NOT NULL
+CREATE TABLE users (
+                       users_id        BIGSERIAL    PRIMARY KEY,
+                       email           VARCHAR(100) NOT NULL UNIQUE,
+                       password        VARCHAR(255),
+                       nickname        VARCHAR(50)  NOT NULL UNIQUE,
+                       phone           VARCHAR(20)  NOT NULL UNIQUE,
+                       role            VARCHAR(20)  NOT NULL DEFAULT 'USER'
+                           CONSTRAINT chk_role CHECK (role IN ('USER', 'ADMIN')),
+                       provider        VARCHAR(20)  NOT NULL DEFAULT 'LOCAL'
+                           CONSTRAINT chk_provider CHECK (provider IN ('LOCAL', 'KAKAO', 'GOOGLE', 'NAVER')),
+                       has_all_access  BOOLEAN      NOT NULL DEFAULT FALSE,
+                       is_deleted      BOOLEAN      NOT NULL DEFAULT FALSE,
+                       deleted_at      TIMESTAMP,
+
+                       CONSTRAINT chk_password_or_oauth
+                           CHECK (provider != 'LOCAL' OR password IS NOT NULL)
 );
+
+-- users
+CREATE TABLE users_profiles (
+                               users_id       BIGINT PRIMARY KEY,
+                               belong         VARCHAR(100),
+                               position       VARCHAR(100),
+                               address        VARCHAR(255),
+                               address_detail VARCHAR(255),
+                               mailing_agreed BOOLEAN   NOT NULL DEFAULT FALSE,
+                               created_at     TIMESTAMP NOT NULL DEFAULT NOW(),
+                               updated_at     TIMESTAMP NOT NULL DEFAULT NOW(),
+
+                               CONSTRAINT fk_user_profiles_users
+                                   FOREIGN KEY (users_id) REFERENCES users (users_id) ON DELETE CASCADE
+);
+
+
 
 -- 카테고리 테이블
 CREATE TABLE IF NOT EXISTS categories (
@@ -58,6 +96,9 @@ CREATE TABLE IF NOT EXISTS enrollments (
     FOREIGN KEY (courses_id) REFERENCES courses (courses_id)
 );
 
+ALTER TABLE enrollments
+    ADD CONSTRAINT uq_enrollments_user_course UNIQUE (users_id, courses_id);
+
 -- 회차 테이블
 CREATE TABLE IF NOT EXISTS episodes (
     episodes_id bigserial PRIMARY KEY,
@@ -71,7 +112,7 @@ CREATE TABLE IF NOT EXISTS episodes (
 
 -- 진도 테이블
 CREATE TABLE IF NOT EXISTS progresses (
-    progress_id bigserial PRIMARY KEY, -- 오타 수정
+    progresses_id bigserial PRIMARY KEY,
     users_id bigint NOT NULL,
     episodes_id bigint NOT NULL,
     last_position integer NOT NULL DEFAULT 0,
@@ -150,4 +191,6 @@ CREATE TABLE IF NOT EXISTS reviews (
     FOREIGN KEY (users_id) REFERENCES users (users_id)
 );
 
+ALTER TABLE reviews
+    ADD CONSTRAINT uq_reviews_user_course UNIQUE (users_id, courses_id);
 
