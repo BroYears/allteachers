@@ -1,0 +1,68 @@
+### ☕ Java & Spring Boot (Gradle) ###
+HELP.md
+.gradle
+build/
+out/
+bin/
+!gradle/wrapper/gradle-wrapper.jar
+
+# QueryDSL generated classes (빌드 시 자동 생성되므로 제외)
+/src/main/generated
+
+# 제외 대상의 하위 경로 예외 처리
+!**/src/main/**/build/
+!**/src/test/**/build/
+!**/src/main/**/bin/
+!**/src/test/**/bin/
+!**/src/main/**/out/
+!**/src/test/**/out/
+
+### ⚛️ Frontend (Vite + React + Node) ###
+node_modules/
+dist/
+dist-ssr/
+*.local
+.eslintcache
+.vite/
+coverage/
+
+### 🔒 Security & Environment (보안 민감 파일) ###
+.env
+.env*.local
+application-*.yml
+application-*.properties
+**/secrets/*.yml
+*.pem
+*.jks
+
+### 🛠️ IDE & Editor (IntelliJ, VS Code, STS, NetBeans) ###
+# IntelliJ
+.idea
+*.iws
+*.iml
+*.ipr
+
+# VS Code
+.vscode/
+
+# STS
+.apt_generated
+.classpath
+.factorypath
+.project
+.settings
+.springBeans
+.sts4-cache
+
+# NetBeans
+/nbproject/private/
+/nbbuild/
+/nbdist/
+/.nb-gradle/
+
+### 📦 System & Logs ###
+.DS_Store
+Thumbs.db
+*.log
+*.swp
+*.bak

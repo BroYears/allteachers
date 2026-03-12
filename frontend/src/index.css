@@ -1,0 +1,256 @@
+:root {
+  font-family: system-ui, Avenir, Helvetica, Arial, sans-serif;
+  line-height: 1.5;
+  font-weight: 400;
+
+  color-scheme: light dark;
+  color: rgba(255, 255, 255, 0.87);
+  background-color: #242424;
+
+  font-synthesis: none;
+  text-rendering: optimizeLegibility;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+a {
+  font-weight: 500;
+  color: #646cff;
+  text-decoration: inherit;
+}
+a:hover {
+  color: #535bf2;
+}
+
+body {
+  margin: 0;
+  min-width: 320px;
+  min-height: 100vh;
+}
+
+h1 {
+  font-size: 3.2em;
+  line-height: 1.1;
+}
+
+button {
+  border-radius: 8px;
+  border: 1px solid transparent;
+  padding: 0.6em 1.2em;
+  font-size: 1em;
+  font-weight: 500;
+  font-family: inherit;
+  background-color: #1a1a1a;
+  cursor: pointer;
+  transition: border-color 0.25s;
+}
+button:hover {
+  border-color: #646cff;
+}
+button:focus,
+button:focus-visible {
+  outline: 4px auto -webkit-focus-ring-color;
+}
+
+@media (prefers-color-scheme: light) {
+  :root {
+    color: #213547;
+    background-color: #ffffff;
+  }
+  a:hover {
+    color: #747bff;
+  }
+  button {
+    background-color: #f9f9f9;
+  }
+}
+
+/* Custom Override for Full Width Client Carousel on Home */
+.main_con_bottom.full-width {
+    width: 100vw;
+    position: relative;
+    left: 50%;
+    right: 50%;
+    margin-left: -50vw;
+    margin-right: -50vw;
+    padding-left: 0 !important;
+    padding-right: 0 !important;
+    max-width: none !important;
+    overflow: hidden;
+}
+
+.main_con_bottom.full-width .companies-header-wrapper {
+    width: 100%;
+    display: flex;
+    justify-content: center;
+}
+
+.main_con_bottom.full-width .container {
+    padding-left: 0;
+    padding-right: 0;
+}
+
+.main_con_bottom.full-width .full-width-slider {
+    width: 100% !important;
+    max-width: 100% !important;
+}
+
+.main_con_bottom.full-width .swiper-image {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    width: 100%;
+}
+
+/* ====== Main Hero Banner ====== */
+
+.main .page_con {
+    padding: 0;
+    max-width: 100%;
+    overflow: visible;
+}
+
+.main_wrap {
+    position: relative;
+    overflow: visible;
+}
+
+/* The Swiper component itself (position:relative comes from Swiper library) */
+.mainSwiper {
+    width: 100%;
+    height: 500px !important;       /* CRITICAL: explicit height so bottom:Xpx works for controls */
+    overflow: visible !important;   /* Allow sibling slides to peek out */
+}
+
+/* Each slide - rounded card style */
+.mainSwiper .swiper-slide {
+    height: 500px !important;
+    border-radius: 20px;
+    overflow: hidden;
+    transition: transform 0.4s ease, opacity 0.4s ease;
+    background-size: cover !important;
+    background-position: center !important;
+}
+
+/* Dim & shrink non-active slides so active slide pops */
+.mainSwiper .swiper-slide:not(.swiper-slide-active) {
+    opacity: 0.55;
+    transform: scale(0.93);
+}
+
+/* Content layout inside each slide */
+.mainSwiper .swiper-slide-content {
+    position: relative;
+    height: 100%;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: flex-start;
+    padding: 0 8%;
+    z-index: 1;
+}
+
+/* ---- Controls overlay (positioned at bottom of .mainSwiper, which is position:relative) ---- */
+.mainSwiper .swiper-navi-content {
+    position: absolute;
+    bottom: 30px;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 78%;   /* ≈ matches active slide (container / 1.15 ≈ 87%), giving slight inset */
+    z-index: 30;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    pointer-events: none;
+}
+
+.swiper-navi-content .swiper-pagination-wrap,
+.swiper-navi-content .swiper-button-wrap {
+    pointer-events: auto;
+    display: flex;
+    align-items: center;
+    background: rgba(0, 0, 0, 0.35);
+    backdrop-filter: blur(8px);
+    border-radius: 30px;
+    padding: 5px 14px;
+    gap: 8px;
+}
+
+/* Pagination fraction text */
+.swiper-navi-content .swiper-pagination {
+    position: static !important;
+    width: auto !important;
+    color: #fff;
+    font-size: 12px;
+    font-weight: 500;
+    letter-spacing: 0.5px;
+}
+
+/* Arrow & pause buttons */
+.swiper-navi-content .custom-swiper-prev,
+.swiper-navi-content .custom-swiper-next,
+.swiper-navi-content .swiper-button-pause {
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: none !important;
+    border: none !important;
+    padding: 2px !important;
+    color: #fff;
+    transition: opacity 0.2s;
+}
+
+.swiper-navi-content .custom-swiper-prev i,
+.swiper-navi-content .custom-swiper-next i,
+.swiper-navi-content .swiper-button-pause i {
+    font-size: 12px;
+    color: #fff;
+}
+
+.swiper-navi-content .custom-swiper-prev:hover,
+.swiper-navi-content .custom-swiper-next:hover,
+.swiper-navi-content .swiper-button-pause:hover {
+    opacity: 0.6;
+}
+
+/* Hide default Swiper nav buttons */
+.mainSwiper .swiper-button-prev,
+.mainSwiper .swiper-button-next {
+    display: none !important;
+}
+
+/* ---- Slide Typography ---- */
+.mainSwiper .swiper-slide h4 {
+    font-size: 16px;
+    font-weight: 600;
+    margin-bottom: 10px;
+    color: rgba(255,255,255,0.85);
+    letter-spacing: 0.5px;
+}
+
+.mainSwiper .swiper-slide h2 {
+    font-size: 44px;
+    font-weight: 800;
+    margin-bottom: 16px;
+    line-height: 1.2;
+    color: #fff;
+}
+
+.mainSwiper .swiper-slide p {
+    font-size: 15px;
+    line-height: 1.65;
+    color: rgba(255,255,255,0.85);
+    margin-bottom: 28px;
+    max-width: 480px;
+}
+
+.mainSwiper .swiper-slide-content > a {
+    display: inline-block;
+    font-size: 15px;
+    color: rgba(255,255,255,0.85);
+    border-bottom: 1px solid rgba(255,255,255,0.6);
+    padding-bottom: 2px;
+}
+
+

@@ -1,0 +1,66 @@
+plugins {
+    id 'java'
+    id 'org.springframework.boot' version '4.0.3'
+    id 'io.spring.dependency-management' version '1.1.7'
+}
+
+group = 'kr.co.allteachers'
+version = '0.0.1-SNAPSHOT'
+description = 'AllTeachers'
+
+java {
+    toolchain {
+        languageVersion = JavaLanguageVersion.of(21)
+    }
+}
+
+repositories {
+    mavenCentral()
+}
+
+dependencies {
+
+    // 1. Web & Validation
+    implementation 'org.springframework.boot:spring-boot-starter-web'
+    implementation 'org.springframework.boot:spring-boot-starter-validation'
+
+    // 2. Database (PostgreSQL & Querydsl)
+    implementation 'org.springframework.boot:spring-boot-starter-data-jpa'
+    runtimeOnly 'org.postgresql:postgresql'
+
+    // Querydsl: Boot 4/Jakarta EE 11 대응 설정
+    implementation 'com.querydsl:querydsl-jpa:5.0.0:jakarta'
+    annotationProcessor "com.querydsl:querydsl-apt:5.0.0:jakarta"
+    annotationProcessor "jakarta.annotation:jakarta.annotation-api" // 추가 필수
+    annotationProcessor "jakarta.persistence:jakarta.persistence-api" // 추가 필수
+
+    // 3. Redis & Security (인증 및 하트비트 진도 추적용)
+    implementation 'org.springframework.boot:spring-boot-starter-data-redis'
+    implementation 'org.springframework.boot:spring-boot-starter-security'
+    implementation 'org.springframework.boot:spring-boot-starter-oauth2-client'
+
+    // JJWT
+    implementation 'io.jsonwebtoken:jjwt-api:0.12.3'
+    runtimeOnly 'io.jsonwebtoken:jjwt-impl:0.12.3'
+    runtimeOnly 'io.jsonwebtoken:jjwt-jackson:0.12.3'
+
+    // 4. Batch & Cloud (30일 유예 탈퇴 자동화 & S3 VOD 연동)
+    implementation 'org.springframework.boot:spring-boot-starter-batch'
+    // Spring Cloud AWS
+    implementation 'io.awspring.cloud:spring-cloud-aws-starter-s3:4.0.0'
+
+    // 5. Utils & Monitoring (1인 개발 필수품)
+    compileOnly 'org.projectlombok:lombok'
+    annotationProcessor 'org.projectlombok:lombok'
+    // 에러 트래킹 및 API 버저닝 디버깅용
+    implementation 'org.springframework.boot:spring-boot-starter-actuator'
+
+    // 6. Test
+    testImplementation 'org.springframework.boot:spring-boot-starter-test'
+    testImplementation 'org.springframework.security:spring-security-test'
+    testRuntimeOnly 'org.junit.platform:junit-platform-launcher'
+}
+
+tasks.named('test') {
+    useJUnitPlatform()
+}

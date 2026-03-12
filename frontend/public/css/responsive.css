@@ -1,0 +1,409 @@
+/* laptop */
+@media screen and (max-width: 1199px) {
+	/* header */
+	.header_con_top .header_con {
+		padding-right: 24px;
+	}
+	.header_con_bottom .pc_gnb .depth_1 > li > a {
+		padding: 0 10px;
+	}
+
+	/* Zoom */
+	.class-table thead th {
+		font-size: 16px;
+	}
+	.class-table tbody td {
+		font-size: 15px;
+	}
+
+	/* level */
+	.level-test-card .level-test-btns .btn-level {
+		padding: 10px 24px;
+	}
+	.level-test-list .level-test-card .title,
+	.level-test-list .level-test-card .title span {
+		font-size: 18px;
+	}
+
+	/* education-guide */
+	.education-guide .education-types .type-card {
+		padding: 24px;
+	}
+}
+
+/* tablet */
+@media screen and (max-width: 1024px) {
+	.header_con_top .header_con {
+		padding: 0;
+	}
+	.header_con_bottom {
+		display: none;
+	}
+	.header_con_top .util {
+		display: none;
+	}
+	/* allmenu */
+	.header_con_top .all_menu_btn {
+		display: block;
+	}
+
+	/* main */
+	.subject-list {
+		grid-template-columns: repeat(2, 1fr);
+	}
+
+	/*education*/
+	.tab-contents .course-list {
+		grid-template-columns: repeat(3, 1fr);
+	}
+	.tab-contents .course-list .course-card .course-thumb {
+		height: 160px;
+	}
+	.category-tabs {
+		overflow-x: auto;
+		-webkit-overflow-scrolling: touch;
+		scrollbar-width: none;
+		-ms-overflow-style: none;
+	}
+	.category-tabs::-webkit-scrollbar {
+		display: none;
+	}
+	.category-tabs ul {
+		flex-wrap: nowrap;
+		white-space: nowrap;
+		gap: 6px;
+		padding: 0 12px;
+		min-width: max-content;
+	}
+
+	/* level */
+	.level-test-list {
+		grid-template-columns: repeat(2, 1fr);
+	}
+	.level-test-list .level-test-card .level-test-btns {
+		gap: 14px;
+		width: 100%;
+		align-items: center;
+	}
+	.level-test-card .level-test-btns .btn-level {
+		padding: 10px 16px;
+		width: 80%;
+	}
+
+	/* detail */
+	.lecture-meta table {
+		font-size: 15px;
+	}
+
+	.detail_con .lecture-info .lecture-meta table th,
+	.detail_con .lecture-info .lecture-meta table td {
+		padding: 14px 12px;
+	}
+
+	.lecture-tab {
+		gap: 10px;
+	}
+
+	.lecture-tab .tab-item {
+		flex: 1;
+	}
+
+	.lecture-playlist li {
+		padding: 12px 8px;
+		font-size: 15px;
+	}
+
+	/* education-guide */
+	.feature-item .tit {
+		font-size: 16px;
+	}
+	.feature-item .desc {
+		font-size: 12px;
+	}
+	.education-guide .education-types {
+		grid-template-columns: repeat(1, 1fr);
+	}
+	.education-guide .title-wrap {
+		padding-bottom: 16px;
+	}
+
+	/* .employment-refund */
+	.employment-refund .content-wrap .desc-list li,
+	.employment-refund .content-wrap .desc-box .question,
+	.employment-refund .title-wrap .sub-title,
+	.employment-refund .content-wrap.change .change-list h4,
+	.employment-refund .content-wrap.change .change-list:first-of-type > h4,
+	.training-wrapper .training-wrap .desc-text {
+		font-size: 15px;
+	}
+
+	.previous-group .previous,
+	.current-group .current {
+		font-size: 16px;
+	}
+
+	.previous-group .desc,
+	.current-group .desc {
+		font-size: 14px;
+	}
+	.employment-refund .content-wrap .sub-title .tit {
+		font-size: 20px;
+	}
+}
+
+/* mobile */
+@media screen and (max-width: 767px) {
+	/* header */
+	.header_con_top .header_con {
+		padding: 0;
+		height: 55px;
+	}
+	.header_con_top .logo {
+		position: initial;
+		transform: translateX(0);
+	}
+	.header_con_top .logo > a {
+		font-size: 16px;
+		font-weight: 600;
+		column-gap: 6px;
+	}
+	.header_con_top .logo > a img {
+		max-width: 180px;
+	}
+	.header_con_top .all_menu_btn a {
+		width: 55px;
+		height: 55px;
+	}
+
+	/* main */
+	.main_con .container {
+		padding: 0;
+	}
+	.category-container {
+		gap: 24px;
+		padding: 0 16px;
+	}
+
+	.category-header {
+		justify-content: space-between;
+		padding-bottom: 8px;
+	}
+
+	.category-header h3 {
+		font-size: 16px;
+	}
+
+	.more-link {
+		font-size: 13px;
+	}
+
+	.subject-list {
+		grid-template-columns: repeat(1, 1fr);
+	}
+
+	.subject-item {
+		border-radius: 8px;
+		overflow: hidden;
+	}
+
+	.subject-item .subject {
+		display: block;
+		padding: 12px;
+		text-align: center;
+	}
+
+	.subject-item .subject .view {
+		margin-bottom: 8px;
+	}
+
+	.subject-title {
+		font-size: 14px;
+		color: #333;
+	}
+
+	/*education*/
+	.tab-contents .course-list {
+		grid-template-columns: repeat(2, 1fr);
+		gap: 16px;
+	}
+	.tab-contents .course-list .course-card .course-name {
+		padding: 10px;
+		font-size: 14px;
+	}
+
+	/* zoom */
+	.class-table {
+		background-color: transparent;
+		border: none;
+	}
+	.class-table thead {
+		display: none;
+	}
+	.class-table tbody,
+	.class-table tr {
+		display: block;
+		width: 100%;
+	}
+	.class-table tr {
+		padding: 16px;
+		margin-bottom: 50px;
+		border-radius: 8px;
+		background-color: #fdfdfd;
+		box-shadow: 0 2px 6px rgba(0, 0, 0, 0.05);
+	}
+	.class-table td {
+		display: grid;
+		grid-template-columns: 50% 1fr;
+		column-gap: 20px;
+		position: relative;
+		border: 0;
+		padding: 8px 0;
+		width: 100%;
+	}
+	.class-table td::before {
+		content: attr(data-label);
+		font-weight: bold;
+	}
+	.class-table td::after {
+		content: '';
+		width: 5px;
+		background-color: rgba(0, 0, 0, 0.01);
+		height: 100px;
+		left: 50%;
+		position: absolute;
+	}
+	.class-table td:last-child::after {
+		display: none;
+	}
+	.class-table tbody td .btn-enter-class {
+		grid-column: span 2;
+		text-align: center;
+		width: 100%;
+		padding: 12px;
+		margin-top: 10px;
+		color: #fff;
+	}
+
+	/* level */
+	.level-test-list {
+		grid-template-columns: repeat(1, 1fr);
+	}
+	.level-test-list .level-test-card .level-test-btns {
+		gap: 14px;
+		width: 100%;
+		align-items: center;
+	}
+	.level-test-card .level-test-btns .btn-level {
+		padding: 10px 16px;
+		width: 80%;
+	}
+
+	/* detail */
+	.detail_con .lecture-info {
+		flex-direction: column;
+		gap: 30px;
+		align-items: center;
+	}
+	.detail_con .lecture-info .lecture-thumbnail {
+		width: 50%;
+		height: 100px;
+	}
+	.detail_con .lecture-info .lecture-meta {
+		width: 100%;
+	}
+
+	/* education-guide */
+	.education-guide .education-features ul {
+		flex-direction: column;
+	}
+	.education-features ul .feature-item:not(:last-child)::after {
+		bottom: 0;
+		left: 50%;
+		transform: translate(-50%, 30px);
+	}
+	.type-card .desc-list li {
+		font-size: 13px;
+	}
+	.type-card .info-desc {
+		font-size: 14px;
+	}
+
+	/* .employment-refund */
+	.employment-refund .title-wrap .title {
+		font-size: 20px;
+	}
+	.employment-refund .content-wrap .sub-title {
+		flex-direction: column;
+		gap: 8px;
+	}
+	.employment-refund .content-wrap .sub-title .tit {
+		font-size: 18px;
+	}
+	.employment-refund .content-wrap .desc-list li,
+	.employment-refund .content-wrap .desc-box .question,
+	.employment-refund .title-wrap .sub-title,
+	.employment-refund .content-wrap.change .change-list h4,
+	.employment-refund .content-wrap.change .change-list:first-of-type > h4,
+	.training-wrapper .training-wrap .desc-text {
+		font-size: 14px;
+	}
+	.employment-refund .content-wrap .desc-box .desc-list li {
+		display: flex;
+		align-items: center;
+		justify-content: center;
+		padding: 16px;
+	}
+	.employment-refund .notice {
+		font-size: 12px;
+	}
+	.employment-refund .content-box p {
+		font-size: 13px;
+	}
+	.refund-table-wrap .refund-table th,
+	.refund-table-wrap .refund-table td,
+	.training-table-wrap .training-table th,
+	.training-table-wrap .training-table td {
+		font-size: 13px;
+	}
+	.letter-spacing {
+		letter-spacing: 0;
+	}
+	.change-list .change-group {
+		flex-direction: column;
+	}
+	.current-group::after {
+		top: 0;
+		left: 50%;
+		transform: translate(-50%, -125%) rotate(90deg);
+	}
+	.training-table-wrap .training-table-title {
+		margin-left: 0;
+	}
+	.training-table-wrap .training-table {
+		width: 100%;
+	}
+
+	/* notice */
+
+	.notice .title-wrap .title img {
+		width: 70%;
+	}
+
+	/* footer */
+	footer .foot_con,
+	footer .foot_con .util {
+		justify-content: center;
+	}
+	footer .foot_con .util li a {
+		padding: 5px 10px;
+	}
+	footer .foot_con .logo_con {
+		display: none;
+	}
+	footer .foot_con .family_site {
+		display: none;
+	}
+	footer .foot_con address {
+		align-items: center;
+	}
+}
