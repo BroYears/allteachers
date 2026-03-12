@@ -1,0 +1,8 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(find /c/Users/User/IdeaProjects/AllTeachers/frontend -name \"*.vue\" -o -name \"*.ts\" -o -name \"*.js\" -o -name \"package.json\" 2>/dev/null | grep -v dist | grep -v node_modules | head -40)",
+      "Bash(find /c/Users/User/IdeaProjects/AllTeachers/frontend/src -type f -name \"*.tsx\" -o -name \"*.ts\" | xargs wc -l | tail -1)"
+    ]
+  }
+}
