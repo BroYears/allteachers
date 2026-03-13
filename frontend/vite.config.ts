@@ -10,7 +10,6 @@ export default defineConfig(({ mode }) => {
     plugins: [react()],
     server: {
       allowedHosts: [
-        '.ngrok-free.app',  // ngrok의 기본 도메인 전체를 허용 (와일드카드 방식)
         'localhost'
       ],
       proxy: {

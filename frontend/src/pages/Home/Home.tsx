@@ -33,6 +33,54 @@ interface PageResponse<T> {
     totalElements: number;
 }
 
+// ─── 카테고리 아이콘 매핑 ──────────────────────────────────────────────────────
+const CATEGORY_ICONS: Record<string, string> = {
+    '영어회화':           'fa-comments',
+    '비즈니스 영어':      'fa-briefcase',
+    '영어 자격증':        'fa-certificate',
+    '중국어 회화':        'fa-dragon',
+    '비즈니스 중국어':    'fa-briefcase',
+    '중국어 자격증':      'fa-certificate',
+    '일본어 회화':        'fa-torii-gate',
+    '비즈니스 일본어':    'fa-briefcase',
+    '일본어 자격증':      'fa-certificate',
+    '제 2외국어':         'fa-language',
+    '인공지능':           'fa-robot',
+    '프로그래밍':         'fa-code',
+    '데이터 사이언스':    'fa-chart-bar',
+    '리더십/커뮤니케이션':'fa-users',
+    '영업/서비스':        'fa-handshake',
+    '비즈니스/기획':      'fa-lightbulb',
+    '업무 생산성':        'fa-bolt',
+    '마케팅':             'fa-bullhorn',
+    '디자인':             'fa-pen-nib',
+    '영상/미디어':        'fa-video',
+};
+
+// ─── 카테고리 경로 매핑 ──────────────────────────────────────────────────────
+const CATEGORY_PATHS: Record<string, string> = {
+    '영어회화':           '/education/course-list/language/english-conversation',
+    '비즈니스 영어':      '/education/course-list/language/business-english',
+    '영어 자격증':        '/education/course-list/language/english-certificate',
+    '중국어 회화':        '/education/course-list/language/chinese-conversation',
+    '비즈니스 중국어':    '/education/course-list/language/business-chinese',
+    '중국어 자격증':      '/education/course-list/language/chinese-certificate',
+    '일본어 회화':        '/education/course-list/language/japanese-conversation',
+    '비즈니스 일본어':    '/education/course-list/language/business-japanese',
+    '일본어 자격증':      '/education/course-list/language/japanese-certificate',
+    '제 2외국어':         '/education/course-list/language/second-language',
+    '인공지능':           '/education/course-list/job/ai',
+    '프로그래밍':         '/education/course-list/job/programming',
+    '데이터 사이언스':    '/education/course-list/job/data-science',
+    '리더십/커뮤니케이션':'/education/course-list/job/leadership',
+    '영업/서비스':        '/education/course-list/job/sales-service',
+    '비즈니스/기획':      '/education/course-list/job/business-planning',
+    '업무 생산성':        '/education/course-list/job/productivity',
+    '마케팅':             '/education/course-list/job/marketing',
+    '디자인':             '/education/course-list/job/design',
+    '영상/미디어':        '/education/course-list/job/media',
+};
+
 // ─── 컴포넌트 ─────────────────────────────────────────────────────────────────
 const Home: React.FC = () => {
     const [swiperRef, setSwiperRef] = useState<SwiperClass>();
@@ -40,6 +88,10 @@ const Home: React.FC = () => {
 
     const [categories, setCategories]       = useState<CategoryDto[]>([]);
     const [selectedCategoryId, setSelectedCategoryId] = useState<number | null>(null);
+    const [catExpanded, setCatExpanded]     = useState(false);
+    const catDropdownRef                    = useRef<HTMLDivElement>(null);
+
+    const CAT_VISIBLE = 9; // 한 줄에 표시할 카테고리 수 (데스크톱 기준)
 
     const [popularCourses, setPopularCourses] = useState<CourseDto[]>([]);
     const [recentCourses, setRecentCourses]   = useState<CourseDto[]>([]);
@@ -130,6 +182,18 @@ const Home: React.FC = () => {
         return () => observer.disconnect();
     }, [loadAllCourses]); // loadAllCourses는 stable ref
 
+    // ── 드롭다운 바깥 클릭 시 닫기 ─────────────────────────────────────────
+    useEffect(() => {
+        if (!catExpanded) return;
+        const handler = (e: MouseEvent) => {
+            if (catDropdownRef.current && !catDropdownRef.current.contains(e.target as Node)) {
+                setCatExpanded(false);
+            }
+        };
+        document.addEventListener('mousedown', handler);
+        return () => document.removeEventListener('mousedown', handler);
+    }, [catExpanded]);
+
     const togglePlay = () => {
         if (!swiperRef) return;
         if (isPlaying) swiperRef.autoplay.stop();
@@ -141,6 +205,13 @@ const Home: React.FC = () => {
         setSelectedCategoryId(id);
     };
 
+    const bannerData = [
+        { id: 1, title: "AI 2.0 설계 로드맵", subtitle: "최대 78% 할인전!", desc: "(~3/15) 딱 10일 한정 역대급 할인으로<br/>AI 2.0으로 즉시 전환해 보세요!", className: "swiper-slide1" },
+        { id: 2, title: "외국어 마스터 과정", subtitle: "원어민처럼 말하기", desc: "비즈니스부터 일상 회화까지<br/>전문 강사진과 함께하는 맞춤 교육", className: "swiper-slide2" },
+        { id: 3, title: "주요 기업 채용 정보", subtitle: "취업 필수 자격증", desc: "대기업 입사 지원을 위한 필수 코스<br/>단기간 고득점 달성을 보장합니다!", className: "swiper-slide3" }
+    ];
+    const doubleBanners = [...bannerData, ...bannerData]; // 3개 -> 6개로 확장 (루프 안정성)
+
     const companies = [
         "삼성전자", "현대자동차", "SK텔레콤", "LG전자",
         "네이버", "카카오", "쿠팡", "배달의민족",
@@ -150,7 +221,7 @@ const Home: React.FC = () => {
     return (
         <div id="contents" className="contents main">
             <div className="page_con">
-                <div className="main_wrap">
+                <div className="main_wrap mainSwiper-wrap">
 
                     {/* ── 메인 배너 Swiper ───────────────────────────────── */}
                     <Swiper
@@ -158,9 +229,9 @@ const Home: React.FC = () => {
                         onSwiper={setSwiperRef}
                         modules={[Navigation, Pagination, Autoplay]}
                         spaceBetween={16}
-                        slidesPerView={1.15}
+                        slidesPerView={'auto'}
                         centeredSlides={true}
-                        loopAdditionalSlides={1}
+                        loop={true}
                         navigation={{
                             prevEl: '.custom-swiper-prev',
                             nextEl: '.custom-swiper-next',
@@ -173,33 +244,19 @@ const Home: React.FC = () => {
                             formatFractionTotal: () => 3,
                         }}
                         autoplay={{ delay: 3500, disableOnInteraction: false }}
-                        loop={true}
                     >
-                        <SwiperSlide className="swiper-slide1">
-                            <div className="swiper-slide-content">
-                                <h4>AI 2.0 설계 로드맵</h4>
-                                <h2>최대 78% 할인전!</h2>
-                                <p>(~3/15) 딱 10일 한정 역대급 할인으로<br/>AI 2.0으로 즉시 전환해 보세요!</p>
-                                <Link to="#!">자세히 보기 &gt;</Link>
-                            </div>
-                        </SwiperSlide>
-                        <SwiperSlide className="swiper-slide2">
-                            <div className="swiper-slide-content">
-                                <h4>외국어 마스터 과정</h4>
-                                <h2>원어민처럼 말하기</h2>
-                                <p>비즈니스부터 일상 회화까지<br/>전문 강사진과 함께하는 맞춤 교육</p>
-                                <Link to="#!">자세히 보기 &gt;</Link>
-                            </div>
-                        </SwiperSlide>
-                        <SwiperSlide className="swiper-slide3">
-                            <div className="swiper-slide-content">
-                                <h4>주요 기업 채용 정보</h4>
-                                <h2>취업 필수 자격증</h2>
-                                <p>대기업 입사 지원을 위한 필수 코스<br/>단기간 고득점 달성을 보장합니다!</p>
-                                <Link to="#!">자세히 보기 &gt;</Link>
-                            </div>
-                        </SwiperSlide>
+                        {doubleBanners.map((banner, idx) => (
+                            <SwiperSlide key={`${banner.id}-${idx}`} className={banner.className}>
+                                <div className="swiper-slide-content">
+                                    <h4>{banner.title}</h4>
+                                    <h2>{banner.subtitle}</h2>
+                                    <p dangerouslySetInnerHTML={{ __html: banner.desc }} />
+                                    <Link to="#!">자세히 보기 &gt;</Link>
+                                </div>
+                            </SwiperSlide>
+                        ))}
 
+                        {/* navi-content */}
                         <div className="swiper-navi-content">
                             <div className="swiper-pagination-wrap">
                                 <div className="swiper-pagination"></div>
@@ -214,9 +271,85 @@ const Home: React.FC = () => {
                         </div>
                     </Swiper>
 
+                    {/* ── 카테고리 탐색 ─────────────────────────────────── */}
+                    {!loading && categories.length > 0 && (
+                        <section className="main_section category-nav-section">
+                            <div className="container">
+                                <div className="section-header">
+                                    <h2 className="section-title">
+                                        <i className="fa-solid fa-layer-group"></i> 카테고리
+                                    </h2>
+                                </div>
+                                <div className="category-nav-grid">
+                                    {categories.slice(0, CAT_VISIBLE).map(cat => (
+                                        <Link
+                                            key={cat.id}
+                                            to={CATEGORY_PATHS[cat.name] || `/education/course-list?categoryId=${cat.id}`}
+                                            className="category-nav-item"
+                                        >
+                                            <span className="category-nav-icon">
+                                                <i className={`fa-solid ${CATEGORY_ICONS[cat.name] ?? 'fa-book'}`}></i>
+                                            </span>
+                                            <span className="category-nav-name">{cat.name}</span>
+                                        </Link>
+                                    ))}
+                                </div>
+                                {categories.length > CAT_VISIBLE && (
+                                    <div className="category-nav-more-wrap" ref={catDropdownRef}>
+                                        <button
+                                            className={`category-nav-more${catExpanded ? ' active' : ''}`}
+                                            onClick={() => setCatExpanded(prev => !prev)}
+                                        >
+                                            <i className={`fa-solid fa-chevron-${catExpanded ? 'up' : 'down'}`}></i>
+                                            {catExpanded ? '접기' : `더보기 (${categories.length - CAT_VISIBLE}개)`}
+                                        </button>
+                                        {catExpanded && (
+                                            <div className="category-nav-dropdown">
+                                                {categories.slice(CAT_VISIBLE).map(cat => (
+                                                    <Link
+                                                        key={cat.id}
+                                                        to={CATEGORY_PATHS[cat.name] || `/education/course-list?categoryId=${cat.id}`}
+                                                        className="category-nav-item"
+                                                        onClick={() => setCatExpanded(false)}
+                                                    >
+                                                        <span className="category-nav-icon">
+                                                            <i className={`fa-solid ${CATEGORY_ICONS[cat.name] ?? 'fa-book'}`}></i>
+                                                        </span>
+                                                        <span className="category-nav-name">{cat.name}</span>
+                                                    </Link>
+                                                ))}
+                                            </div>
+                                        )}
+                                    </div>
+                                )}
+                            </div>
+                        </section>
+                    )}
+
                     {/* ── 인기 강의 ──────────────────────────────────────── */}
                     <section className="main_section popular-section">
                         <div className="container">
+                            {/* 카테고리 필터 탭 (인기순/전체 강의 필터용) */}
+                            <div className="main-category-tabs">
+                                <button
+                                    className={`main-category-tab${selectedCategoryId === null ? ' active' : ''}`}
+                                    onClick={() => handleCategorySelect(null)}
+                                >
+                                    <i className="fa-solid fa-border-all"></i>
+                                    <span>전체</span>
+                                </button>
+                                {categories.map(cat => (
+                                    <button
+                                        key={cat.id}
+                                        className={`main-category-tab${selectedCategoryId === cat.id ? ' active' : ''}`}
+                                        onClick={() => handleCategorySelect(cat.id)}
+                                    >
+                                        <i className={`fa-solid ${CATEGORY_ICONS[cat.name] ?? 'fa-book'}`}></i>
+                                        <span>{cat.name}</span>
+                                    </button>
+                                ))}
+                            </div>
+
                             <div className="section-header">
                                 <h2 className="section-title">
                                     <i className="fa-solid fa-fire"></i> 인기 강의
@@ -227,25 +360,6 @@ const Home: React.FC = () => {
                                 >
                                     전체 보기 &gt;
                                 </Link>
-                            </div>
-
-                            {/* 카테고리 탭 */}
-                            <div className="category-tabs">
-                                <button
-                                    className={`category-tab${selectedCategoryId === null ? ' active' : ''}`}
-                                    onClick={() => handleCategorySelect(null)}
-                                >
-                                    전체
-                                </button>
-                                {categories.map(cat => (
-                                    <button
-                                        key={cat.id}
-                                        className={`category-tab${selectedCategoryId === cat.id ? ' active' : ''}`}
-                                        onClick={() => handleCategorySelect(cat.id)}
-                                    >
-                                        {cat.name}
-                                    </button>
-                                ))}
                             </div>
 
                             {loading || popularLoading ? (
