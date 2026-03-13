@@ -4,9 +4,9 @@ services:
   db:
     image: postgres:16
     environment:
-      POSTGRES_DB: allteachers
-      POSTGRES_USER: allteachers
-      POSTGRES_PASSWORD: allteachers
+      POSTGRES_DB: ${DB_NAME}
+      POSTGRES_USER: ${DB_USERNAME}
+      POSTGRES_PASSWORD: ${DB_PASSWORD}
     ports:
       - "5432:5432"
     volumes:
@@ -14,7 +14,7 @@ services:
       - ./DDL.sql:/docker-entrypoint-initdb.d/01-ddl.sql
       - ./DML.sql:/docker-entrypoint-initdb.d/02-dml.sql
     healthcheck:
-      test: ["CMD-SHELL", "pg_isready -U allteachers"]
+      test: ["CMD-SHELL", "pg_isready -U ${DB_USERNAME}"]
       interval: 5s
       timeout: 5s
       retries: 5
@@ -22,8 +22,12 @@ services:
   # ── Valkey (Redis-compatible) ────────────────────────────────────────────────
   valkey:
     image: valkey/valkey:8
-    # AOF + RDB 스냅샷 동시 활성화 → refresh token 영속성 보장
-    command: valkey-server --appendonly yes --appendfsync everysec --save 60 1
+    command: >
+      valkey-server
+      --appendonly yes
+      --appendfsync everysec
+      --save 60 1
+      ${REDIS_PASSWORD:+--requirepass ${REDIS_PASSWORD}}
     ports:
       - "6379:6379"
     volumes:
@@ -32,26 +36,34 @@ services:
   # ── Spring Boot Backend ──────────────────────────────────────────────────────
   backend:
     build: ./backend
+    env_file: .env
+    environment:
+      DB_HOST: db
+      DB_PORT: 5432
+      REDIS_HOST: valkey
+      REDIS_PORT: 6379
     ports:
       - "8080:8080"
-    environment:
-      SPRING_DATASOURCE_URL: jdbc:postgresql://db:5432/allteachers
-      SPRING_DATASOURCE_USERNAME: allteachers
-      SPRING_DATASOURCE_PASSWORD: allteachers
-      SPRING_DATA_REDIS_HOST: valkey
-      SPRING_DATA_REDIS_PORT: 6379
     depends_on:
       db:
         condition: service_healthy
       valkey:
         condition: service_started
 
+  # ── Mailpit (로컬 메일 테스트) ──────────────────────────────────────────────
+  mailpit:
+    image: axllent/mailpit:latest
+    ports:
+      - "1025:1025"   # SMTP
+      - "8025:8025"   # Web UI
+    restart: unless-stopped
+
   # ── React Frontend ───────────────────────────────────────────────────────────
   frontend:
     build:
       context: ./frontend
       args:
-        VITE_API_URL: http://localhost:8080
+        VITE_API_URL: ${VITE_API_URL:-http://localhost:8080}
     ports:
       - "3000:80"
     depends_on:
