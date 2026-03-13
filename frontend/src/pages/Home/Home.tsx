@@ -1,54 +1,149 @@
-import React, { useState } from 'react';
+import React, { useCallback, useEffect, useRef, useState } from 'react';
 import { Link } from 'react-router-dom';
 import { Swiper as SwiperClass } from 'swiper/types';
 import { Swiper, SwiperSlide } from 'swiper/react';
 import { Navigation, Pagination, Autoplay } from 'swiper/modules';
+import CourseCard from '../../components/CourseCard';
 
-// Import Swiper styles (already imported globally in main.tsx, but good practice if modularized)
 import 'swiper/css';
 import 'swiper/css/navigation';
 import 'swiper/css/pagination';
 
+// ─── 타입 ─────────────────────────────────────────────────────────────────────
+interface CategoryDto {
+    id: number;
+    name: string;
+}
+
+interface CourseDto {
+    id: number;
+    title: string;
+    instructor: string;
+    level: string;
+    thumbnailUrl: string;
+    price: number;
+    viewCount: number;
+    lessonCount: number;
+    categoryName: string;
+}
+
+interface PageResponse<T> {
+    content: T[];
+    last: boolean;
+    totalElements: number;
+}
+
+// ─── 컴포넌트 ─────────────────────────────────────────────────────────────────
 const Home: React.FC = () => {
     const [swiperRef, setSwiperRef] = useState<SwiperClass>();
     const [isPlaying, setIsPlaying] = useState(true);
 
+    const [categories, setCategories]       = useState<CategoryDto[]>([]);
+    const [selectedCategoryId, setSelectedCategoryId] = useState<number | null>(null);
+
+    const [popularCourses, setPopularCourses] = useState<CourseDto[]>([]);
+    const [recentCourses, setRecentCourses]   = useState<CourseDto[]>([]);
+    const [allCourses, setAllCourses]         = useState<CourseDto[]>([]);
+
+    const [loading, setLoading]         = useState(true);   // 초기 skeleton
+    const [popularLoading, setPopularLoading] = useState(false);
+    const [allLoading, setAllLoading]   = useState(false);
+    const [hasMore, setHasMore]         = useState(true);
+
+    // IntersectionObserver에서 stale closure 방지용 refs
+    const sentinelRef    = useRef<HTMLDivElement>(null);
+    const pageRef        = useRef(0);
+    const loadingRef     = useRef(false);
+    const hasMoreRef     = useRef(true);
+    const categoryIdRef  = useRef<number | null>(null);
+
+    // ── 초기 로드: 카테고리 + 신규 강의 ────────────────────────────────────
+    useEffect(() => {
+        Promise.all([
+            fetch('/api/categories/main').then(r => r.json()),
+            fetch('/api/courses/recent?limit=6').then(r => r.json()),
+        ])
+            .then(([cats, recent]) => {
+                setCategories(cats);
+                setRecentCourses(recent);
+            })
+            .catch(console.error)
+            .finally(() => setLoading(false));
+    }, []);
+
+    // ── 인기 강의: 카테고리 변경 시 재요청 ─────────────────────────────────
+    useEffect(() => {
+        setPopularLoading(true);
+        const params = new URLSearchParams({ limit: '10' });
+        if (selectedCategoryId !== null) params.set('categoryId', String(selectedCategoryId));
+        fetch(`/api/courses/popular?${params}`)
+            .then(r => r.json())
+            .then(setPopularCourses)
+            .catch(console.error)
+            .finally(() => setPopularLoading(false));
+    }, [selectedCategoryId]);
+
+    // ── 전체 강의 한 페이지 로드 ────────────────────────────────────────────
+    const loadAllCourses = useCallback((page: number, catId: number | null, replace: boolean) => {
+        if (loadingRef.current || (!hasMoreRef.current && !replace)) return;
+        loadingRef.current = true;
+        setAllLoading(true);
+
+        const params = new URLSearchParams({ page: String(page), size: '12' });
+        if (catId !== null) params.set('categoryId', String(catId));
+
+        fetch(`/api/courses/list?${params}`)
+            .then(r => r.json())
+            .then((data: PageResponse<CourseDto>) => {
+                setAllCourses(prev => replace ? data.content : [...prev, ...data.content]);
+                hasMoreRef.current = !data.last;
+                setHasMore(!data.last);
+                pageRef.current = page + 1;
+            })
+            .catch(console.error)
+            .finally(() => {
+                loadingRef.current = false;
+                setAllLoading(false);
+            });
+    }, []); // 의도적 empty deps — 모든 필요값을 파라미터로 전달
+
+    // ── 카테고리 변경 → 전체 강의 초기화 후 재로드 ──────────────────────────
+    useEffect(() => {
+        categoryIdRef.current = selectedCategoryId;
+        pageRef.current = 0;
+        hasMoreRef.current = true;
+        setAllCourses([]);
+        setHasMore(true);
+        loadAllCourses(0, selectedCategoryId, true);
+    }, [selectedCategoryId, loadAllCourses]);
+
+    // ── IntersectionObserver: sentinel 진입 시 다음 페이지 로드 ─────────────
+    useEffect(() => {
+        const el = sentinelRef.current;
+        if (!el) return;
+        const observer = new IntersectionObserver(([entry]) => {
+            if (entry.isIntersecting && hasMoreRef.current && !loadingRef.current) {
+                loadAllCourses(pageRef.current, categoryIdRef.current, false);
+            }
+        }, { threshold: 0.1 });
+        observer.observe(el);
+        return () => observer.disconnect();
+    }, [loadAllCourses]); // loadAllCourses는 stable ref
+
     const togglePlay = () => {
         if (!swiperRef) return;
-        if (isPlaying) {
-            swiperRef.autoplay.stop();
-        } else {
-            swiperRef.autoplay.start();
-        }
+        if (isPlaying) swiperRef.autoplay.stop();
+        else           swiperRef.autoplay.start();
         setIsPlaying(!isPlaying);
     };
-    // Dummy data arrays for `.map()` rendering
-    const categories = [
-        {
-            title: "영어 일반회화",
-            subjects: ["일반회화 초급", "일반회화 중급", "비지니스 프리토킹", "원어민 회화 마스터"]
-        },
-        {
-            title: "중국어 일반회화",
-            subjects: ["HSK 기초", "비지니스 중국어", "TSC 준비반", "원어민 발음 교정"]
-        },
-        {
-            title: "일본어 일반회화",
-            subjects: ["히라가나/가타카나 완전정복", "JLPT 대비반", "비지니스 일본어", "일본어 프리토킹"]
-        },
-        {
-            title: "영어 자격증",
-            subjects: ["TOEIC 700+ 목표반", "TOEIC 900+ 실전반", "OPIc AL 목표반", "TOEFL 기초반"]
-        },
-        {
-            title: "직무강의",
-            subjects: ["파이썬 기초", "엑셀 기획서 작성", "리더십 커뮤니케이션", "스프링부트 실전 마스터"]
-        }
-    ];
+
+    const handleCategorySelect = (id: number | null) => {
+        setSelectedCategoryId(id);
+    };
 
     const companies = [
-        "삼성전자", "현대자동차", "SK텔레콤", "LG전자", 
-        "네이버", "카카오", "쿠팡", "배달의민족", 
+        "삼성전자", "현대자동차", "SK텔레콤", "LG전자",
+        "네이버", "카카오", "쿠팡", "배달의민족",
         "토스", "당근마켓", "넥슨", "엔씨소프트"
     ];
 
@@ -56,8 +151,8 @@ const Home: React.FC = () => {
         <div id="contents" className="contents main">
             <div className="page_con">
                 <div className="main_wrap">
-                    
-                    {/* Swiper React component - className goes on Swiper's own generated div which is position:relative */}
+
+                    {/* ── 메인 배너 Swiper ───────────────────────────────── */}
                     <Swiper
                         className="mainSwiper"
                         onSwiper={setSwiperRef}
@@ -65,12 +160,13 @@ const Home: React.FC = () => {
                         spaceBetween={16}
                         slidesPerView={1.15}
                         centeredSlides={true}
+                        loopAdditionalSlides={1}
                         navigation={{
                             prevEl: '.custom-swiper-prev',
                             nextEl: '.custom-swiper-next',
                         }}
-                        pagination={{ 
-                            el: '.swiper-pagination', 
+                        pagination={{
+                            el: '.swiper-pagination',
                             clickable: true,
                             type: 'fraction',
                             formatFractionCurrent: (n) => ((n - 1) % 3) + 1,
@@ -103,32 +199,7 @@ const Home: React.FC = () => {
                                 <Link to="#!">자세히 보기 &gt;</Link>
                             </div>
                         </SwiperSlide>
-                        {/* Duplicate slides so loop mode always has neighbors on both sides */}
-                        <SwiperSlide className="swiper-slide1">
-                            <div className="swiper-slide-content">
-                                <h4>AI 2.0 설계 로드맵</h4>
-                                <h2>최대 78% 할인전!</h2>
-                                <p>(~3/15) 딱 10일 한정 역대급 할인으로<br/>AI 2.0으로 즉시 전환해 보세요!</p>
-                                <Link to="#!">자세히 보기 &gt;</Link>
-                            </div>
-                        </SwiperSlide>
-                        <SwiperSlide className="swiper-slide2">
-                            <div className="swiper-slide-content">
-                                <h4>외국어 마스터 과정</h4>
-                                <h2>원어민처럼 말하기</h2>
-                                <p>비즈니스부터 일상 회화까지<br/>전문 강사진과 함께하는 맞춤 교육</p>
-                                <Link to="#!">자세히 보기 &gt;</Link>
-                            </div>
-                        </SwiperSlide>
-                        <SwiperSlide className="swiper-slide3">
-                            <div className="swiper-slide-content">
-                                <h4>주요 기업 채용 정보</h4>
-                                <h2>취업 필수 자격증</h2>
-                                <p>대기업 입사 지원을 위한 필수 코스<br/>단기간 고득점 달성을 보장합니다!</p>
-                                <Link to="#!">자세히 보기 &gt;</Link>
-                            </div>
-                        </SwiperSlide>
-                        {/* Controls inside Swiper - positioned absolute via .mainSwiper (position:relative from Swiper library) */}
+
                         <div className="swiper-navi-content">
                             <div className="swiper-pagination-wrap">
                                 <div className="swiper-pagination"></div>
@@ -143,33 +214,154 @@ const Home: React.FC = () => {
                         </div>
                     </Swiper>
 
-                    {/* Main Content Categories */}
-                    <div className="main_con">
+                    {/* ── 인기 강의 ──────────────────────────────────────── */}
+                    <section className="main_section popular-section">
                         <div className="container">
-                            <div className="category-container">
-                                {categories.map((category, idx) => (
-                                    <div className="category-group" key={idx}>
-                                        <div className="category-header">
-                                            <h3>{category.title}</h3>
-                                            <Link to="#!" className="more-link">더보기 &gt;</Link>
-                                        </div>
-                                        <ul className="subject-list">
-                                            {category.subjects.map((subject, sIdx) => (
-                                                <li className="subject-item" key={sIdx}>
-                                                    <Link to="/education/course-detail/1" className="subject">
-                                                        <div className="view"></div>
-                                                        <div className="subject-title">{subject}</div>
-                                                    </Link>
-                                                </li>
-                                            ))}
-                                        </ul>
-                                    </div>
+                            <div className="section-header">
+                                <h2 className="section-title">
+                                    <i className="fa-solid fa-fire"></i> 인기 강의
+                                </h2>
+                                <Link
+                                    to={`/education/course-list${selectedCategoryId !== null ? `?categoryId=${selectedCategoryId}` : ''}`}
+                                    className="section-more"
+                                >
+                                    전체 보기 &gt;
+                                </Link>
+                            </div>
+
+                            {/* 카테고리 탭 */}
+                            <div className="category-tabs">
+                                <button
+                                    className={`category-tab${selectedCategoryId === null ? ' active' : ''}`}
+                                    onClick={() => handleCategorySelect(null)}
+                                >
+                                    전체
+                                </button>
+                                {categories.map(cat => (
+                                    <button
+                                        key={cat.id}
+                                        className={`category-tab${selectedCategoryId === cat.id ? ' active' : ''}`}
+                                        onClick={() => handleCategorySelect(cat.id)}
+                                    >
+                                        {cat.name}
+                                    </button>
                                 ))}
                             </div>
-                        </div>
-                    </div>
 
-                    {/* Bottom Companies Slider */}
+                            {loading || popularLoading ? (
+                                <div className="course-grid-skeleton">
+                                    {Array.from({ length: 10 }).map((_, i) => (
+                                        <div key={i} className="skeleton-card" />
+                                    ))}
+                                </div>
+                            ) : popularCourses.length > 0 ? (
+                                <div className="course-grid">
+                                    {popularCourses.map(c => (
+                                        <CourseCard
+                                            key={c.id}
+                                            id={c.id}
+                                            title={c.title}
+                                            instructor={c.instructor}
+                                            level={c.level}
+                                            thumbnailUrl={c.thumbnailUrl}
+                                            categoryName={c.categoryName}
+                                            viewCount={c.viewCount}
+                                            lessonCount={c.lessonCount}
+                                        />
+                                    ))}
+                                </div>
+                            ) : (
+                                <p className="no-data">등록된 강의가 없습니다.</p>
+                            )}
+                        </div>
+                    </section>
+
+                    {/* ── 신규 등록 강의 ─────────────────────────────────── */}
+                    <section className="main_section recent-section">
+                        <div className="container">
+                            <div className="section-header">
+                                <h2 className="section-title">
+                                    <i className="fa-solid fa-star"></i> 신규 등록 강의
+                                </h2>
+                                <Link to="/education/course-list" className="section-more">전체 보기 &gt;</Link>
+                            </div>
+                            {loading ? (
+                                <div className="course-grid-skeleton course-grid-skeleton--3col">
+                                    {Array.from({ length: 3 }).map((_, i) => (
+                                        <div key={i} className="skeleton-card" />
+                                    ))}
+                                </div>
+                            ) : recentCourses.length > 0 ? (
+                                <div className="course-grid course-grid--3col">
+                                    {recentCourses.map(c => (
+                                        <CourseCard
+                                            key={c.id}
+                                            id={c.id}
+                                            title={c.title}
+                                            instructor={c.instructor}
+                                            level={c.level}
+                                            thumbnailUrl={c.thumbnailUrl}
+                                            categoryName={c.categoryName}
+                                            viewCount={c.viewCount}
+                                            lessonCount={c.lessonCount}
+                                            isNew={true}
+                                        />
+                                    ))}
+                                </div>
+                            ) : (
+                                <p className="no-data">등록된 강의가 없습니다.</p>
+                            )}
+                        </div>
+                    </section>
+
+                    {/* ── 전체 강의 인기순 (무한스크롤) ─────────────────── */}
+                    <section className="main_section all-courses-section">
+                        <div className="container">
+                            <div className="section-header">
+                                <h2 className="section-title">
+                                    <i className="fa-solid fa-trophy"></i> 전체 강의
+                                </h2>
+                                <Link
+                                    to={`/education/course-list${selectedCategoryId !== null ? `?categoryId=${selectedCategoryId}` : ''}`}
+                                    className="section-more"
+                                >
+                                    전체 보기 &gt;
+                                </Link>
+                            </div>
+                            <div className="course-grid">
+                                {allCourses.map(c => (
+                                    <CourseCard
+                                        key={c.id}
+                                        id={c.id}
+                                        title={c.title}
+                                        instructor={c.instructor}
+                                        level={c.level}
+                                        thumbnailUrl={c.thumbnailUrl}
+                                        categoryName={c.categoryName}
+                                        viewCount={c.viewCount}
+                                        lessonCount={c.lessonCount}
+                                    />
+                                ))}
+                            </div>
+
+                            {/* 로딩 스피너 */}
+                            {allLoading && (
+                                <div className="infinite-loading">
+                                    <span className="infinite-spinner" />
+                                </div>
+                            )}
+
+                            {/* 더 이상 데이터 없음 */}
+                            {!hasMore && allCourses.length > 0 && (
+                                <p className="infinite-end">모든 강의를 불러왔습니다.</p>
+                            )}
+
+                            {/* IntersectionObserver sentinel */}
+                            <div ref={sentinelRef} className="infinite-sentinel" />
+                        </div>
+                    </section>
+
+                    {/* ── 주요 고객사 ─────────────────────────────────────── */}
                     <div className="main_con_bottom full-width">
                         <div className="companies-header-wrapper">
                             <div className="container">
@@ -185,8 +377,8 @@ const Home: React.FC = () => {
                                 spaceBetween={20}
                                 slidesPerView={4}
                                 breakpoints={{
-                                    320: { slidesPerView: 2 },
-                                    768: { slidesPerView: 4 },
+                                    320:  { slidesPerView: 2 },
+                                    768:  { slidesPerView: 4 },
                                     1024: { slidesPerView: 6 },
                                     1440: { slidesPerView: 8 },
                                 }}
@@ -195,9 +387,7 @@ const Home: React.FC = () => {
                             >
                                 {companies.map((company, idx) => (
                                     <SwiperSlide key={idx}>
-                                        <div className="swiper-image">
-                                            {company}
-                                        </div>
+                                        <div className="swiper-image">{company}</div>
                                     </SwiperSlide>
                                 ))}
                             </Swiper>

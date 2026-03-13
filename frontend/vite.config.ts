@@ -9,6 +9,10 @@ export default defineConfig(({ mode }) => {
   return {
     plugins: [react()],
     server: {
+      allowedHosts: [
+        '.ngrok-free.app',  // ngrok의 기본 도메인 전체를 허용 (와일드카드 방식)
+        'localhost'
+      ],
       proxy: {
         // /api/* 요청을 Spring Boot 서버로 프록시 (개발 환경 CORS 우회)
         '/api': {

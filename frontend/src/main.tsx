@@ -7,7 +7,6 @@ import '../public/css/reset.css';
 import '../public/css/common.css';
 import '../public/css/style.css';
 import '../public/css/responsive.css';
-import '../public/css/swiper-bundle.min.css';
 import '../public/css/fontawesome/all.min.css';
 import '../public/css/animate.min.css';
 
