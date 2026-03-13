@@ -5,6 +5,7 @@ const BASE_URL = import.meta.env.VITE_API_URL ?? '';
 
 // ─── 모듈 레벨 상태 ───────────────────────────────────────────────────────────
 
+
 // Access Token은 메모리에만 저장 (XSS로 localStorage 탈취 불가)
 let _accessToken: string | null = null;
 
